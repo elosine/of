@@ -2,6 +2,11 @@
 
 #include "ofMain.h"
 #include "ofxBullet.h"
+#include "ofxOsc.h"
+
+#define HOST "localhost"
+#define PORT 57120
+#define PORTR 12321
 
 class ofApp : public ofBaseApp{
 
@@ -43,5 +48,10 @@ public:
 	ofCamera					camera;
 	ofLight						light;
 	ofVec3f						mousePos;
+    
+    ofxOscReceiver receiver;
+    ofxOscSender sender;
+    
+    float amp, freq;
 		
 };

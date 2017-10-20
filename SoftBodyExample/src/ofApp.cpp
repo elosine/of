@@ -8,11 +8,12 @@
 
 //--------------------------------------------------------------
 void ofApp::setup() {
-    ofSet
 	ofSetFrameRate(60);
 	ofSetVerticalSync(true);
 	//ofBackground( 10, 10, 10);
     
+    sender.setup(HOST, PORT);
+    receiver.setup(PORTR);
   
 	
 	camera.setPosition(ofVec3f(0, -4.f, -10.f));
@@ -33,8 +34,8 @@ void ofApp::setup() {
 	
 	jointLength = .35f;
     
-    ofVec3f node1 = camera.screenToWorld(ofVec3f( 100, ofGetHeight()/2, 0));
-    ofVec3f node2 = camera.screenToWorld(ofVec3f( ofGetWidth(), ofGetHeight()/2, 0));
+    ofVec3f node1 = camera.screenToWorld(ofVec3f( 0, ofGetHeight()/2, 0));
+    ofVec3f node2 = camera.screenToWorld(ofVec3f( ofGetWidth()+10, ofGetHeight()/2, 0));
     
     ofVec3f node3 = camera.screenToWorld(ofVec3f( ofGetWidth()/2, ofGetHeight()/2, 0));
 	
@@ -52,16 +53,16 @@ void ofApp::setup() {
 	
 	rope = new ofxBulletRope();
     //rope->create(&world, ofVec3f(0, 2, 0), ofVec3f(0, 5.5, 0), 50);
-    rope->create(&world, node1, node2, 50);
+    rope->create(&world, node1, node2, 100);
 	rope->add();
 	rope->setMass(0.5f);
     rope->setStiffness(1, 1, 1);
     //rope->setFixedAt(0);
     //rope->setNodePositionAt(0, node1);
 
-	rope->attachRigidBodyAt(26, shapes[0]->getRigidBody());
+	//rope->attachRigidBodyAt(26, shapes[0]->getRigidBody());
     rope->setFixedAt(0);
-    rope->setFixedAt(51);
+    rope->setFixedAt(101);
 
     
     
@@ -88,6 +89,28 @@ void ofApp::setup() {
 
 //--------------------------------------------------------------
 void ofApp::update() {
+    
+    
+    ofxOscMessage m;
+    m.setAddress("/getFreqAmp");
+    sender.sendMessage(m, false);
+    
+    
+    
+    while(receiver.hasWaitingMessages()){
+        ofxOscMessage m;
+        receiver.getNextMessage(m);
+        
+        if(m.getAddress() == "/freqAmp"){
+            
+            freq = m.getArgAsFloat(0);
+            amp = m.getArgAsFloat(1);
+        }
+        
+    }
+
+    
+    
 	world.update();
 	ofSetWindowTitle(ofToString(ofGetFrameRate(), 0));
 
@@ -103,8 +126,25 @@ void ofApp::update() {
 	mousePos = camera.screenToWorld( ofVec3f((float)ofGetMouseX(), (float)ofGetMouseY(), 0) );
 	//joints[0]->updatePivotPos( mousePos, 2.f );
     
-    
-    rope->setNodePositionAt(0, camera.screenToWorld( ofVec3f((float)ofGetMouseX(), (float)ofGetMouseY(), 0) ));
+    if(freq > 80 && freq < 90){
+       // float nypos = ofMap(amp, -30, -10, ofGetHeight(), 0);
+        float nypos = ofMap(amp, -30, -10, ofGetHeight()/2, 0);
+        nypos = ofClamp(nypos, -5, ofGetHeight()+5);
+        if(amp < -50){
+            nypos = ofGetHeight()/2;
+        }
+        
+//        rope->setNodePositionAt(0, camera.screenToWorld( ofVec3f(-10, nypos, 0) ));
+//        rope->setNodePositionAt(51, camera.screenToWorld( ofVec3f(ofGetWidth()+10, ofGetHeight()-nypos, 0) ));
+        
+        rope->setNodePositionAt(0, camera.screenToWorld( ofVec3f(-5, nypos, 0) ));
+        rope->setNodePositionAt(101, camera.screenToWorld( ofVec3f(ofGetWidth()+5, ofGetHeight()-nypos, 0) ));
+
+        
+//        rope->setNodePositionAt(0, camera.screenToWorld( ofVec3f((ofGetWidth()/2) - 100, nypos, 0) ));
+//        rope->setNodePositionAt(51, camera.screenToWorld( ofVec3f( (ofGetWidth()/2) + 100, ofGetHeight()-nypos, 0) ));
+        
+    }
     
     if(bSpacebar) {
 		for (int i = 1; i < joints.size(); i++) {
@@ -122,6 +162,9 @@ void ofApp::update() {
 			joints[i]->updatePivotPos( shapes[i-1]->getPosition(), jointLength );
 		}
 	}
+    
+  
+    
 }
 
 //--------------------------------------------------------------
@@ -135,8 +178,8 @@ void ofApp::draw() {
 	ofSetLineWidth(1.f);
 	if(bDrawDebug) world.drawDebug();
 	
-	ofSetColor(255, 255, 255);
-	ofSphere(mousePos, .15f);
+	//ofSetColor(255, 255, 255);
+	//ofSphere(mousePos, .15f);
 	
 //	ofEnableLighting();
 //	light.enable();
@@ -149,7 +192,7 @@ void ofApp::draw() {
     
     
     ofSetColor(ofColor::lime);
-    ofSetLineWidth(10);
+    ofSetLineWidth(3);
     rope->draw();
     //rope2->draw();
     
