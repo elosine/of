@@ -3,6 +3,8 @@
 #include "ofMain.h"
 #include "ofxBullet.h"
 #include "ofxOsc.h"
+#include "ofxPostProcessing.h"
+
 
 #define HOST "localhost"
 #define PORT 57120
@@ -26,32 +28,23 @@ public:
 	void gotMessage(ofMessage msg);
 	
 	ofxBulletWorldSoft			world;
-	ofxBulletBox*				ground;
+	//ofxBulletBox*				ground;
 
     ofxBulletRope*				rope;
     ofxBulletRope*				rope2;
-	ofxBulletPatch*				patch;
-	vector<ofxBulletEllipsoid*> ellipsoids;
-
-	vector<ofxBulletRigidBody*> shapes;
-	vector<ofxBulletJoint*>		joints;
+	
 	vector<ofColor>				shapeColors;
 	ofColor						colors[4];
 	
-	bool						bDrawDebug;
-	bool						bSpacebar;
-	bool						bAddEllipsoid;
-	bool						bShapesNeedErase;
-	
-	float						jointLength;
-	
 	ofCamera					camera;
 	ofLight						light;
-	ofVec3f						mousePos;
     
     ofxOscReceiver receiver;
     ofxOscSender sender;
     
     float amp, freq;
+    
+    
+    ofxPostProcessing post;
 		
 };
