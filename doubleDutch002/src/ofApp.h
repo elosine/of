@@ -21,6 +21,9 @@ public:
     void keyPressed(int key);
     void mousePressed(int x, int y, int button);
     
+    void pitchDetect(int i, float pitchL, float pitchH);
+    void chgClr(int idx, string palette);
+    
     // scene stuff
     ofxPostProcessing post;
     ofEasyCam cam;
@@ -34,7 +37,7 @@ public:
     
     float amp, freq;
     
-    ofColor colors[10];
+    std::array<ofColor, 9> activeClrs;
     
     int zs[10];
     int ys[10];
@@ -62,9 +65,11 @@ public:
     int vSizeL = 5;
     int vSizeH = 50;
     
-    int nyRange = 400;
+    int nyRange = 500;
     
     vector<int> pNodes;
+    
+    map< string, std::array<ofColor, 9> > palettes;
     
 
     

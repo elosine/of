@@ -20,7 +20,7 @@ void ofApp::setup(){
     
     for(int i=0; i<numRopes; i++){
         zs[i] = ofRandom(-150, 150);
-        ys[i] = ofRandom(-150, 150);
+        ys[i] = ofRandom(-170, 170);
         ofVec3f nodeA = ofVec3f( -ofGetWidth()/2, ys[i], zs[i]);
         ofVec3f nodeZ = ofVec3f( ofGetWidth()/2,ys[i],zs[i]);
         ropes.push_back( new ofxBulletRope() );
@@ -59,65 +59,67 @@ void ofApp::setup(){
         }
     }
     
-     // Setup light
+    // Setup light
     light.setPosition(0, 2000, -750);
     
     for(int i=0;i<numRopes;i++){ aniTs[i] = 20; }
     
-    // de Kooning Seated Woman
-//    colors[0] = ofColor(176, 30, 7);
-//    colors[1] = ofColor(196, 0, 0);
-//    colors[2] = ofColor(185, 103, 10);
-//    colors[3] = ofColor(235, 225, 136);
-//    colors[4] = ofColor(21, 149, 102);
-//    colors[5] = ofColor(111, 166, 21);
-//    colors[6] = ofColor(203, 133, 28);
-//    colors[7] = ofColor(224, 178, 0);
-//    colors[8] = ofColor(106, 150, 36);
+    palettes["dekooning"] = //de Kooning Seated Woman
+    {   ofColor(176, 30, 7),
+        ofColor(196, 0, 0),
+        ofColor(185, 103, 10),
+        ofColor(235, 225, 136),
+        ofColor(21, 149, 102),
+        ofColor(111, 166, 21),
+        ofColor(203, 133, 28),
+        ofColor(224, 178, 0),
+        ofColor(106, 150, 36)    };
     
-    // Kandinsky yellow-red-blue
-//    colors[0] = ofColor(49, 47, 165);
-//    colors[1] = ofColor(124, 145, 252);
-//    colors[2] = ofColor(134, 96, 200);
-//    colors[3] = ofColor(119, 115, 206);
-//    colors[4] = ofColor(143, 108, 53);
-//    colors[5] = ofColor(176, 158, 92);
-//    colors[6] = ofColor(29, 21, 50);
-//    colors[7] = ofColor(38, 11, 22);
-//    colors[8] = ofColor(165, 152, 208);
+    palettes["kandinsky"] = // Kandinsky yellow-red-blue
+    {   ofColor(49, 47, 165),
+        ofColor(124, 145, 252),
+        ofColor(134, 96, 200),
+        ofColor(119, 115, 206),
+        ofColor(143, 108, 53),
+        ofColor(176, 158, 92),
+        ofColor(29, 21, 50),
+        ofColor(38, 11, 22),
+        ofColor(165, 152, 208) };
     
-    // Matisse La Danse
-//    colors[0] = ofColor(6, 130, 96);
-//    colors[1] = ofColor(17, 105, 174);
-//    colors[2] = ofColor(209, 98, 45);
-//    colors[3] = ofColor(93, 50, 37);
-//    colors[4] = ofColor(88, 113, 162);
-//    colors[5] = ofColor(0, 130, 88);
-//    colors[6] = ofColor(0, 102, 173);
-//    colors[7] = ofColor(224, 99, 30);
-//    colors[8] = ofColor(0, 130, 94);
+    palettes["johns"] = // Jasper Johns Target
+    {   ofColor(195, 14, 22),
+        ofColor(10, 99, 225),
+        ofColor(244, 197, 9),
+        ofColor(21, 133, 78),
+        ofColor(245, 81, 0),
+        ofColor(120, 51, 255),
+        ofColor(203, 50, 39),
+        ofColor(0, 64, 190),
+        ofColor(251, 206, 0) };
     
-    // Jasper Johns Target
-        colors[0] = ofColor(195, 14, 22);
-        colors[1] = ofColor(10, 99, 225);
-        colors[2] = ofColor(244, 197, 9);
-        colors[3] = ofColor(21, 133, 78);
-        colors[4] = ofColor(245, 81, 0);
-        colors[5] = ofColor(120, 51, 255);
-        colors[6] = ofColor(203, 50, 39);
-        colors[7] = ofColor(0, 64, 190);
-        colors[8] = ofColor(251, 206, 0);
+    palettes["klee"] = // Klee Southern Tunisian Gardens
+    {   ofColor(174, 42, 6),
+        ofColor(224, 183, 54),
+        ofColor(44, 150, 115),
+        ofColor(157, 122, 43),
+        ofColor(207, 222, 195),
+        ofColor(204, 43, 0),
+        ofColor(215, 157, 20),
+        ofColor(0, 158, 95),
+        ofColor(198, 125, 0) };
     
-    // Klee Southern Tunisian Gardens
-//        colors[0] = ofColor(174, 42, 6);
-//        colors[1] = ofColor(224, 183, 54);
-//        colors[2] = ofColor(44, 150, 115);
-//        colors[3] = ofColor(157, 122, 43);
-//        colors[4] = ofColor(207, 222, 195);
-//        colors[5] = ofColor(204, 43, 0);
-//        colors[6] = ofColor(215, 157, 20);
-//        colors[7] = ofColor(0, 158, 95);
-//        colors[8] = ofColor(198, 125, 0);
+    palettes["white"] =
+    {   ofColor::white,
+        ofColor::white,
+        ofColor::white,
+        ofColor::white,
+        ofColor::white,
+        ofColor::white,
+        ofColor::white,
+        ofColor::white,
+        ofColor::white };
+    
+    activeClrs = palettes["dekooning"];
 
     ofHideCursor();
 }
@@ -136,6 +138,10 @@ void ofApp::update(){
             freq = m.getArgAsFloat(0);
             amp = m.getArgAsFloat(1);
         }
+        
+        if(m.getAddress() == "/chgClr"){
+            chgClr(m.getArgAsInt(0), m.getArgAsString(1));
+        }
     }
     
     world.update();
@@ -145,73 +151,14 @@ void ofApp::update(){
 //    xPos = xOrig + radius * cos(angle);
 //    yPos = yOrig + radius * sin(angle);
     
-    if(freq > 72 && freq < 73){
-        float nypos = ofMap(amp, -30, -10, -nyRange, nyRange);
-        nypos = ofClamp(nypos, -nyRange, nyRange);
-        if(amp < -50){nypos = 0;}
-        ropes[0]->setNodePositionAt(0,  ofVec3f(-ofGetWidth()/2, nypos, zs[0]) );
-    }
-    
-    if(freq > 74 && freq < 75){
-        float nypos = ofMap(amp, -30, -10, -nyRange, nyRange);
-        nypos = ofClamp(nypos, -nyRange, nyRange);
-        if(amp < -50){nypos = 0;}
-        ropes[1]->setNodePositionAt((numNodes+1),  ofVec3f(ofGetWidth()/2, nypos, zs[1]) );
-    }
-    
-    if(freq > 70 && freq < 71){
-        float nypos = ofMap(amp, -30, -10, -nyRange, nyRange);
-        nypos = ofClamp(nypos, -nyRange, nyRange);
-        if(amp < -50){nypos = 0;}
-        ropes[2]->setNodePositionAt(0,  ofVec3f(-ofGetWidth()/2, nypos, zs[2]) );
-        ropes[2]->setNodePositionAt((numNodes+1),  ofVec3f(ofGetWidth()/2, -nypos, zs[2]) );
-    }
-    
-    if(freq > 57 && freq < 58){
-        float nypos = ofMap(amp, -30, -10, -nyRange, nyRange);
-        nypos = ofClamp(nypos, -nyRange, nyRange);
-        if(amp < -50){nypos = 0;}
-        ropes[3]->setNodePositionAt(0,  ofVec3f(-ofGetWidth()/2, nypos, zs[3]) );
-    }
-    
-    if(freq > 59.5 && freq < 60.5){
-        float nypos = ofMap(amp, -30, -10, -nyRange, nyRange);
-        nypos = ofClamp(nypos, -nyRange, nyRange);
-        if(amp < -50){nypos = 0;}
-        ropes[4]->setNodePositionAt((numNodes+1),  ofVec3f(ofGetWidth()/2, nypos, zs[4]) );
-    }
-    
-    if(freq > 62 && freq < 63){
-        float nypos = ofMap(amp, -30, -10, -nyRange, nyRange);
-        nypos = ofClamp(nypos, -nyRange, nyRange);
-        if(amp < -50){nypos = 0;}
-        ropes[5]->setNodePositionAt(0,  ofVec3f(-ofGetWidth()/2, nypos, zs[5]) );
-        ropes[5]->setNodePositionAt((numNodes+1),  ofVec3f(ofGetWidth()/2, -nypos, zs[5]) );
-    }
-    
-    if(freq > 77.5 && freq < 78.5){
-        float nypos = ofMap(amp, -30, -10, -nyRange, nyRange);
-        nypos = ofClamp(nypos, -nyRange, nyRange);
-        if(amp < -50){nypos = 0;}
-        ropes[6]->setNodePositionAt(0,  ofVec3f(-ofGetWidth()/2, nypos, zs[6]) );
-    }
-    
-    if(freq > 79.7 && freq < 81){
-        float nypos = ofMap(amp, -30, -10, -nyRange, nyRange);
-        nypos = ofClamp(nypos, -nyRange, nyRange);
-        if(amp < -50){nypos = 0;}
-        ropes[7]->setNodePositionAt((numNodes+1),  ofVec3f(ofGetWidth()/2, nypos, zs[7]) );
-    }
-    
-    if(freq > 82 && freq < 83){
-        float nypos = ofMap(amp, -30, -10, -nyRange, nyRange);
-        nypos = ofClamp(nypos, -nyRange, nyRange);
-        if(amp < -50){nypos = 0;}
-        ropes[8]->setNodePositionAt(0,  ofVec3f(-ofGetWidth()/2, nypos, zs[8]) );
-        ropes[8]->setNodePositionAt((numNodes+1),  ofVec3f(ofGetWidth()/2, -nypos, zs[8]) );
-    }
-    
-
+    pitchDetect(0, 72, 73);
+    pitchDetect(1, 74, 75);
+    pitchDetect(2, 70, 71);
+    pitchDetect(3, 57, 58);
+    pitchDetect(4, 59.5, 60.5);
+    pitchDetect(5, 62, 63);
+    pitchDetect(6, 77.5, 78.5);
+    pitchDetect(7, 79.7, 81);
     
     for(int i=0;i<ropes.size();++i){
         for(int j=0; j<numNodes; j++){
@@ -220,8 +167,6 @@ void ofApp::update(){
         }
     }
    
-    
-
      for(int i=0;i<numRopes;i++){
          
           if(ofGetFrameNum()%aniTs[i] == 0){
@@ -242,23 +187,12 @@ void ofApp::update(){
               }
           }
      }
-
-     
- 
-    
-
-
-    
-
-
-    
     
 }
 
 
 void ofApp::draw(){
     
-
     // copy enable part of gl state
     glPushAttrib(GL_ENABLE_BIT);
     
@@ -271,12 +205,9 @@ void ofApp::draw(){
     post.begin(cam);
 
     for(int i=0;i<ropes.size();++i){
-        ofSetColor(colors[i]);
+        ofSetColor(activeClrs[i]);
 //      ropes[i]->draw();
         for(int j=0; j<numNodes; j++){
-            
-
-            
             ofPoint nd = ropes[i]->getNodePos(j);
             glPushMatrix();
             ofTranslate(nd);
@@ -288,8 +219,6 @@ void ofApp::draw(){
         }
     }
    
-    
-    
     // end scene and draw
     post.end();
     
@@ -299,6 +228,26 @@ void ofApp::draw(){
     
 }
 
+void ofApp::pitchDetect(int i, float pitchL, float pitchH){
+    float nypos = ofMap(amp, -30, -10, -nyRange, nyRange);
+
+    if(freq > pitchL && freq < pitchH){
+        nypos = ofClamp(nypos, -nyRange, nyRange);
+//      if(amp < -50){nypos = 0;}
+        ropes[i]->setNodePositionAt(0,  ofVec3f(-ofGetWidth()/2, nypos, zs[i]) );
+        ropes[i]->setNodePositionAt((numNodes+1),  ofVec3f(ofGetWidth()/2, -nypos, zs[i]) );
+    }
+    else{
+        
+        ropes[i]->setNodePositionAt(0,  ofVec3f(-ofGetWidth()/2, ys[i], zs[i]) );
+        ropes[i]->setNodePositionAt((numNodes+1),  ofVec3f(ofGetWidth()/2, ys[i], zs[i]) );
+    }
+}
+
+void ofApp::chgClr(int ropeNum, string palette){
+    activeClrs[ropeNum] = palettes[palette][ropeNum];
+}
+
 void ofApp::keyPressed(int key){
    
 }
@@ -306,8 +255,6 @@ void ofApp::keyPressed(int key){
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button) {
     
-
-
 }
 
 
