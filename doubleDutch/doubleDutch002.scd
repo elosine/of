@@ -9,8 +9,8 @@ s.waitForBoot{ fork{
 	~paletteArrayA = ["dekooning", "kandinsky", "johns", "klee"];
 	~paletteArrayB = Array.newFrom(~paletteArrayA.scramble);
 	~paletteNum = 0;
-	~numOnsetsClrChgL = 250;
-	~numOnsetsClrChgH = 450;
+	~numOnsetsClrChgL = 325;
+	~numOnsetsClrChgH = 425; // ~ca 400 per minute
 	~clrChgOnsets = rrand(~numOnsetsClrChgL, ~numOnsetsClrChgH).round;
 
 	~onsetR = OSCFunc( { |msg|
@@ -19,8 +19,10 @@ s.waitForBoot{ fork{
 		//Change Color Palette
 		if( (~oCtr%~clrChgOnsets) == 0,
 			{
+				"fdsafdsajfdksalfjdsaklfjdsjfdsklafjdsklafjdsakld".postln;
 				~chgClrR.value(~paletteArrayB[~paletteNum]);
-				~paletteNum = ~paletteNum+1;
+				~paletteNum = (~paletteNum+1)%~paletteArrayB.size.asInteger;
+				~paletteNum.postln;
 				~clrChgOnsets = rrand(~numOnsetsClrChgL, ~numOnsetsClrChgH).round;
 		});
 
@@ -33,7 +35,6 @@ s.waitForBoot{ fork{
 		fft = FFT(LocalBuf(512),sound);
 		analysis = Onsets.kr(fft,threshold:thresh);
 		SendReply.kr( analysis, "/onset" );
-		Out.ar(0,sound);
 	}).add;
 
 	SynthDef(\detect, {
@@ -67,19 +68,38 @@ s.waitForBoot{ fork{
 
 	~chgClrR = {| paletteName| Routine( {
 		var rps = Array.newFrom(~ropes.scramble);
+		paletteName.postln;
 		rps.do{ |it ix|
 			~of.sendMsg("/chgClr", it, paletteName);
-			rrand(0.8, 2.7).wait;
+			"fjjjjjjjjjjjjjjjjjjjjj".postln;
+			rrand(0.4, 1.5).wait;
 		};
 	}).play };
 
+	~clk0 = TempoClock(1);
+
+	~clk0.schedAbs(
+		1,
+		{|msg|
+			var dir = rand(6).floor;
+			var wt = rrand(0.2,1);
+			~of.sendMsg("/catPushDir", dir);
+			wt
+		}
+	);
+
 }}
 )
+a.free;
+b.free;
+
+n = NetAddr("127.0.0.1", 12321);
+n.sendMsg("/chgRopeMode", 2);
+n.sendMsg("/chgRopeMode", 0);
 
 
 
 
-~chgClrR.value("kandinsky");
 
 
 
