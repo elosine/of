@@ -1,0 +1,4 @@
+ofxKu
+ofxKuTextGui
+ofxOpenCv
+ofxOsc
