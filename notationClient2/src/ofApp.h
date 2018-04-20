@@ -54,6 +54,9 @@ class ofApp : public ofBaseApp{
     int clientRecvPort; // port where we listen for messages
     
 
-
+    vector<float> crvTab;
+    int cirx;
+    int ciry;
+    string idname;
 		
 };

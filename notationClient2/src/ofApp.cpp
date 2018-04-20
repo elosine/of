@@ -3,6 +3,8 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
     
+    idname = "zzzzz";
+    
     textInput = NULL;
     setGUI1();
     gui1->loadSettings("gui1Settings.xml");
@@ -25,16 +27,34 @@ void ofApp::setup(){
     clientRecvPort = 12321;
     clientReceiver.setup(clientRecvPort);
     
+
+    for (int i=0; i<ofGetHeight(); ++i)
+    {
+        crvTab.push_back(ofGetHeight()-i);
+    }
+    cirx = 0;
+    
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
+    
+    ofxOscMessage m;
+    m.setAddress("/getkdata");
+    m.addStringArg(idname);
+    clientSender.sendMessage(m, false);
+    
+
+    
+    
     gravity = gravity *  ( 1+(accel*dir) );
     velocity = velocity + (gravity*dir);
     if ( velocity >= ofGetHeight()-5 )
     {
         dir = -1;
     }
+    
+    ciry = round(crvTab[cirx]);
     
     // Client side:
     
@@ -67,8 +87,7 @@ void ofApp::update(){
                 if(m.getArgType(0) == OFXOSC_TYPE_STRING){
                     string oldMessages = clientMessages;
                     clientMessages = m.getArgAsString(0) + "\n" + oldMessages;
-                    cout << m.getAddress() << endl;
-                    cout << m.getArgAsString(0) << endl;
+                   
                 }
             }
         }
@@ -84,6 +103,17 @@ void ofApp::update(){
             }
             velocity = 100;
             dir = 1;
+            
+            
+        }
+        
+        if(m.getAddress() == "/kdat")
+        {
+            
+            if(m.getArgType(0) == OFXOSC_TYPE_FLOAT)
+            {
+                cirx = round( ofGetHeight()*m.getArgAsFloat(0) );
+            }
             
             
         }
@@ -117,8 +147,16 @@ void ofApp::draw(){
     font.drawString(clientTyping, 542, 100);
     
     ofSetColor(0,0,0);
-    ofCircle(100, velocity, 50);
+    ofCircle(900, velocity, 50);
     
+    
+    ofSetColor(ofColor::darkorange);
+    for (int i=0; i<crvTab.size(); ++i) {
+        ofDrawCircle(i, crvTab[i], 3);
+    }
+    
+    ofSetColor(0,0,0);
+    ofDrawCircle( cirx, ciry, 30);
     
     
 }
@@ -134,6 +172,8 @@ void ofApp::guiEvent(ofxUIEventArgs &e){
         if(ti->getInputTriggerType() == OFX_UI_TEXTINPUT_ON_ENTER)
         {
             string output = ti->getTextString();
+            idname = output;
+            cout<<output<<endl;
             ofxOscMessage m;
             m.setAddress("/id");
             m.addStringArg(output);
@@ -156,6 +196,9 @@ void ofApp::guiEvent(ofxUIEventArgs &e){
         }
         
     }
+    
+   
+
     
 }
 
