@@ -8,49 +8,10 @@
 <Widget>
     <Kind>12</Kind>
     <Name>TEXT INPUT</Name>
-    <Value>what</Value>
+    <Value>jyang</Value>
 </Widget>
 <Widget>
     <Kind>12</Kind>
     <Name>TEXT INPUT2</Name>
-    <Value>Input Text</Value>
-</Widget>
-<Widget>
-    <Kind>22</Kind>
-    <Name>DROP DOWN LIST</Name>
-    <Open>0</Open>
-    <Selected>
-        <Name>Violin</Name>
-        <Name>Trumpet</Name>
-    </Selected>
-</Widget>
-<Widget>
-    <Kind>17</Kind>
-    <Name>Violin</Name>
-    <Value>1</Value>
-</Widget>
-<Widget>
-    <Kind>17</Kind>
-    <Name>Viola</Name>
-    <Value>0</Value>
-</Widget>
-<Widget>
-    <Kind>17</Kind>
-    <Name>Cello</Name>
-    <Value>0</Value>
-</Widget>
-<Widget>
-    <Kind>17</Kind>
-    <Name>Bass</Name>
-    <Value>0</Value>
-</Widget>
-<Widget>
-    <Kind>17</Kind>
-    <Name>Trumpet</Name>
-    <Value>1</Value>
-</Widget>
-<Widget>
-    <Kind>17</Kind>
-    <Name>Percussion</Name>
-    <Value>0</Value>
+    <Value>127.0.0.1</Value>
 </Widget>

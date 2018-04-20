@@ -4,13 +4,20 @@
 #include "ofxUI.h"
 #include "ofxOsc.h"
 
+struct Ball {
+    int x;
+    int y;
+    int vx;
+    int vy;
+};
+
 class ofApp : public ofBaseApp{
 
 	public:
 		void setup();
 		void update();
-    void draw();
-    void exit();
+        void draw();
+        void exit();
 
 		void keyPressed(int key);
 		void keyReleased(int key);
@@ -24,7 +31,14 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
     
-    void drawGrid(float x, float y);
+        Ball whiteBall;
+        Ball yellowBall;
+    
+    ofTrueTypeFont font; // standard font
+    ofTrueTypeFont titleFont; // font for some info in the title line
+    string clientMessages; // string containing the received messages for display
+
+    
     
     void setGUI1();
     
@@ -44,7 +58,6 @@ class ofApp : public ofBaseApp{
     
     ofxOscReceiver clientReceiver; // OSC receiver
     int clientRecvPort; // port where we listen for messages
-    string clientMessages; // string containing the received messages for display
     
 
 

@@ -1,0 +1,4 @@
+ofxBullet
+ofxOsc
+ofxUI
+ofxXmlSettings

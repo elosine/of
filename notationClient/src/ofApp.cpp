@@ -7,9 +7,13 @@ void ofApp::setup(){
     setGUI1();
     gui1->loadSettings("gui1Settings.xml");
     
+    // load fonts to display stuff
+    font.load("futura_book.otf", 12);
+    titleFont.load("futura_book.otf", 20);
+    
     
     //Client side
-    clientDestination	= "129.161.54.45";
+    clientDestination	= "169.120.0.0";
     clientSendPort = 57120;
     clientSender.setup(clientDestination, clientSendPort);
     
@@ -33,12 +37,27 @@ void ofApp::update(){
         clientReceiver.getNextMessage(&m);
         ofLogNotice("Client just received a message");
         // check the address of the incoming message
-        if(m.getAddress() == "/chatlog"){
+        if(m.getAddress() == "/hello")
+        {
+            cout << "fdsak" << endl;
+
+            // get the first argument (we're only sending one) as a string
+            if(m.getNumArgs() > 0){
+                if(m.getArgType(0) == OFXOSC_TYPE_INT32){
+                    cout << m.getAddress() << endl;
+                    cout << m.getArgAsInt(0) << endl;
+                }
+            }
+        }
+        if(m.getAddress() == "/reply")
+        {
             // get the first argument (we're only sending one) as a string
             if(m.getNumArgs() > 0){
                 if(m.getArgType(0) == OFXOSC_TYPE_STRING){
                     string oldMessages = clientMessages;
                     clientMessages = m.getArgAsString(0) + "\n" + oldMessages;
+                    cout << m.getAddress() << endl;
+                    cout << m.getArgAsString(0) << endl;
                 }
             }
         }
@@ -56,7 +75,19 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    ofBackground(ofColor::aqua);
+    ofBackground(ofColor::lightSeaGreen);
+    
+    
+    clientTyping = "";
+
+    for(unsigned int i = 0; i < clientMessages.size(); i++)
+    {
+        string oldTyping = clientTyping;
+        clientTyping = oldTyping + clientMessages[i];
+    }
+    //Display the messages
+
+    font.drawString(clientTyping, 542, 100);
     
     
 
@@ -75,21 +106,27 @@ void ofApp::guiEvent(ofxUIEventArgs &e){
             string output = ti->getTextString();
             ofxOscMessage m;
             m.setAddress("/id");
-            m.addStringArg(clientTyping);
+            m.addStringArg(output);
             clientSender.sendMessage(m, false);
-        }
-        else if(ti->getInputTriggerType() == OFX_UI_TEXTINPUT_ON_FOCUS)
-        {
-            cout << "ON FOCUS: ";
-        }
-        else if(ti->getInputTriggerType() == OFX_UI_TEXTINPUT_ON_UNFOCUS)
-        {
-            cout << "ON BLUR: ";
         }
         string output = ti->getTextString();
         cout << output << endl;
         
     }
+    if(name == "TEXT INPUT2")
+    {
+        ofxUITextInput *ti = (ofxUITextInput *) e.widget;
+        if(ti->getInputTriggerType() == OFX_UI_TEXTINPUT_ON_ENTER)
+        {
+            string output = ti->getTextString();
+            clientDestination = output;
+            
+            clientSender.setup(clientDestination, clientSendPort);
+            cout << output << endl;
+        }
+        
+    }
+
 }
 
 
@@ -108,33 +145,38 @@ void ofApp::exit()
 void ofApp::setGUI1()
 {
     
-    gui1 = new ofxUISuperCanvas("PANEL 2: ADVANCED");
+    gui1 = new ofxUISuperCanvas("Networked Notation");
     
     gui1->addSpacer();
     gui1->setWidgetFontSize(OFX_UI_FONT_MEDIUM);
-    textInput = gui1->addTextInput("TEXT INPUT", "Input Text");
+    textInput = gui1->addTextInput("TEXT INPUT", "Input ID");
     textInput->setAutoUnfocus(false);
     textInput->setAutoClear(false);
-    gui1->addLabel("AUTO CLEAR DISABLED", OFX_UI_FONT_SMALL);
-    gui1->addTextInput("TEXT INPUT2", "Input Text")->setAutoClear(false);
-    gui1->setWidgetFontSize(OFX_UI_FONT_MEDIUM);
-    
-    vector<string> items;
-    items.push_back("Violin"); items.push_back("Viola"); items.push_back("Cello");
-    items.push_back("Bass"); items.push_back("Trumpet"); items.push_back("Percussion");
-
-    gui1->addSpacer();
-    gui1->setWidgetFontSize(OFX_UI_FONT_MEDIUM);
-    ddl = gui1->addDropDownList("DROP DOWN LIST", items);
-    ddl->setAllowMultiple(true);
     
     gui1->addSpacer();
-    gui1->addLabel("LABEL BUTTON", OFX_UI_FONT_MEDIUM);
-    gui1->addLabelButton("LABEL BTN", false);
+    gui1->setWidgetFontSize(OFX_UI_FONT_MEDIUM);
+    textInput = gui1->addTextInput("TEXT INPUT2", "Input Server IP");
+    textInput->setAutoUnfocus(false);
+    textInput->setAutoClear(false);
 
     
-    gui1->setGlobalButtonDimension(OFX_UI_GLOBAL_BUTTON_DIMENSION);
-
+    
+//    vector<string> items;
+//    items.push_back("Violin"); items.push_back("Viola"); items.push_back("Cello");
+//    items.push_back("Bass"); items.push_back("Trumpet"); items.push_back("Percussion");
+//
+//    gui1->addSpacer();
+//    gui1->setWidgetFontSize(OFX_UI_FONT_MEDIUM);
+//    ddl = gui1->addDropDownList("DROP DOWN LIST", items);
+//    ddl->setAllowMultiple(true);
+//    
+//    gui1->addSpacer();
+//    gui1->addLabel("LABEL BUTTON", OFX_UI_FONT_MEDIUM);
+//    gui1->addLabelButton("LABEL BTN", false);
+//
+//    
+//    gui1->setGlobalButtonDimension(OFX_UI_GLOBAL_BUTTON_DIMENSION);
+//
     
     gui1->setPosition(212, 0);
     gui1->autoSizeToFitWidgets();
