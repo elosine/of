@@ -1,0 +1,3 @@
+ofxEnveloper
+ofxMSACore
+ofxMSAInterpolator
